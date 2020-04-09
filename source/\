@@ -1,0 +1,103 @@
+"""A library for detecting changes within files"""
+from inotify.adapters import Inotify
+from inotify.constants import IN_CLOSE_WRITE
+from pathlib import Path
+from itertools import zip_longest, groupby
+
+def writes(*abs_paths):
+    """a generator for file change events
+
+    Args:
+        *abs_paths: the absolute paths to all the files
+            to be monitored. Strings or pathlib.Path accepted
+
+    Yields:
+         :pathlib.Path: The absolute path of each file which has been written to
+
+    """
+
+    # associate to the files within them which will be monitored.
+    files = {}
+    for path in abs_paths:
+        dir, name = str(path.parent), path.name
+        files[dir] = [name] if dir not in files.keys() else  files[dir].append(name)
+
+    grouped = groupby(abs_paths, lambda p: p.parent)
+    print(grouped)
+    print(abs_paths)
+
+
+    # it is easier to watch the directory containing the file as often
+    # when files are changed they are deleted and recreated or moved
+    i = Inotify()
+    for dir in files.keys(): i.add_watch(path_unicode=dir, mask = IN_CLOSE_WRITE)
+
+    relevant_events = (Path(dir, name) for (_, masks, dir, name)
+            in i.event_gen(yield_nones=False)
+            if name in files[dir] and 'IN_ISDIR' not in masks)
+
+    yield from relevant_events
+
+for a  in writes(Path("/tmp/1"), Path('/tmp/2')):
+    ""
+
+class PatternChange:
+    """This is a class"""
+    pass
+
+def changes(pattern, *abs_paths):
+    """a generator for detecting changes to regex patterns
+    within a set of files
+
+    Args:
+        param1 (str): the regex pattern to match
+        *abs_paths: the absolute paths to the files to be monitored
+
+    Yields:
+        :watch.PatternChange: the `PatternChange` object representing the change
+    """
+    # cache the hashes of each match in each file
+    for p in files_in(*filepaths):
+        try:
+            match_list = matches(pattern, p.read_text())
+        except UnicodeDecodeError: "could not read file"
+        with open(hashfile_path(p), 'w') as hashfile:
+            for hash in hashes(match_list):
+                print(hash, file=hashfile)
+
+    for updated in writes(*filepaths):
+        yield updated
+        # collect cached hashes
+        old_hashes  = [hash.strip() for hash
+                in hashfile_path(updated).read_text().split('\n')
+                if hash != '']
+        # find matches in the updated file and compute hashes
+        match_list  = matches(pattern, updated.read_text())
+        hash_list   = hashes(match_list)
+
+        # hash not one of the cached hashes -> item added
+        added   = [(i+1, 'added', match_list[i]) for i, md5
+                in enumerate(hash_list) if md5 not in old_hashes]
+
+        # cached hash not one of the new hashes -> item removed
+        removed = [(i+1, 'removed') for (i, md5)
+                in enumerate(old_hashes) if md5 not in hash_list]
+
+        moved   = [(new_ind+1, 'moved', match, old_ind+1)
+                for new_ind, match in enumerate(match_list)
+                for old_ind, old_md5 in enumerate(old_hashes)
+                if old_ind != new_ind and old_md5 == hash_list[new_ind]]
+
+        yield from added + removed + moved
+
+        with open(hashfile_path(updated), 'w') as hashfile:
+            for hash in hash_list: print(hash, file=hashfile)
+
+
+
+
+
+
+
+
+

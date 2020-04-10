@@ -48,10 +48,10 @@ def changes(pattern, *abs_paths, yield_sames=False):
     Yields:
         a tuple of one of the following forms
 
-        ('added', match_number, match_text)
-        ('removed', previous_match_number, match_text)
-        ('moved', (previous_match_number, match_number), match_text)
-        ('none', match_number, match_text)
+        ('added', match_number, match_text, groups)
+        ('removed', previous_match_number, match_text, groups)
+        ('moved', (previous_match_number, match_number), match_text, groups)
+        ('none', match_number, match_text, groups)
 
         where:
             match_number (int): the index of the match in the
@@ -63,20 +63,28 @@ def changes(pattern, *abs_paths, yield_sames=False):
 
             match_text (str): the text which was changed
 
-            match_hash (str): the hash of the match. Computed by
-                `hashutils.hash(str)`
+            groups (:(list, dict):): a tuple containing a list of
+                groups from the match and a dict containing the named
+                groups from the match
+
 
     """
+
+    def group(m):
+        return ([g for g in m.groups() if g not in m.groupdict().values()], m.groupdict())
+
     # cache the matches
     for p in abs_paths:
         matches = match(pattern, p.read_text())
-        cache_file(p).write_text('\n'.join(matches))
+        cache_file(p).write_text('\n'.join([m.group(0) for m in matches]))
 
     for updated in writes(*abs_paths):
         # collect cached matches
-        cached  = match(pattern, cache_file(updated).read_text())
+        cached_groups = {m.group(0):group(m) for m in match(pattern, cache_file(updated).read_text())}
+        cached        = cached_groups.keys()
         # find matches in the updated file
-        matches = match(pattern, updated.read_text())
+        groups  = {m.group(0):group(m) for m in match(pattern, updated.read_text())}
+        matches = groups.keys()
 
         # associate each match to it's index in the list of matches
         cached_index = {match:i+1 for i, match in enumerate(cached)}
@@ -89,10 +97,11 @@ def changes(pattern, *abs_paths, yield_sames=False):
         moved = set([match for match in still
             if cached_index[match] != new_index[match]])
 
-        same  = [('none', new_index[match], match) for match in (still - moved)]
-        moved = [('moved', (cached_index[match], new_index[match]), match) for match in moved]
-        added   = [('added', new_index[match], match) for match in added]
-        removed = [('removed', cached_index[match], match) for match in removed]
+        same    = [('none', new_index[match], match, groups[match]) for match in (still - moved)]
+        moved   = [('moved', (cached_index[match], new_index[match]), match, groups[match])
+                for match in moved]
+        added   = [('added', new_index[match], match, groups[match]) for match in added]
+        removed = [('removed', cached_index[match], match, cached_groups[match]) for match in removed]
 
         changes = sorted(added + removed + moved)
         if yield_sames: changes += sorted(same)

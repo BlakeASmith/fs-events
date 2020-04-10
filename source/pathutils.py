@@ -3,7 +3,7 @@
 def files_in(*paths):
     """expand each of the given paths
     Args:
-        paths (str): any number of paths to files or directories
+        *paths (str): any number of paths to files or directories
 
     Returns:
         list: the absolute paths of all files found by expanding

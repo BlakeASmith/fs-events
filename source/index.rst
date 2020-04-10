@@ -13,7 +13,17 @@ Welcome to PatternMonitor's documentation!
 .. automodule:: watch
         :members:
 
+.. automodule:: hashutils
+        :members:
 
+.. automodule:: regexutils
+        :members:
+
+.. automodule:: pathutils
+        :members:
+
+.. automodule:: config
+        :members:
 
 Indices and tables
 ==================

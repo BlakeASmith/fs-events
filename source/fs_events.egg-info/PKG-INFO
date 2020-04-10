@@ -1,0 +1,27 @@
+Metadata-Version: 2.1
+Name: fs-events
+Version: 0.0.4
+Summary: Expose filesystem events as generators
+Home-page: https://github.com/BlakeASmith/fs-events
+Author: Blake Smith
+License: UNKNOWN
+Description: fs-events
+        ===================================
+        
+        fs-events is a library for monitoring file system events.
+        It exposes thest events via generators.
+        
+        
+        Installation
+        ==================================
+        
+        pip install fs-events
+        
+        
+        Usage
+        ==================================
+        
+        
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Description-Content-Type: text/x-rst

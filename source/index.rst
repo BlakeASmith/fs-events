@@ -3,31 +3,39 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PatternMonitor's documentation!
+Welcome to the fs-events docs!
 ==========================================
+
+fs-events is a python library for capturing file system events
+as generators. It uses inotify [LINK HERE] to monitor events and
+does not require polling
+
+
+Examples
+=========================================
+.. code-block:: python
+        :linenos:
+
+        # do something every time a file is written to
+        path = Path('~/path/to/file').expanduser()
+        for changed_file in fsevents.writes(path):
+                dosomething(changed_file)
+
+
+fsevents module
+=========================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-.. automodule:: watch
+.. automodule:: fsevents
         :members:
 
-.. automodule:: hashutils
-        :members:
-
-.. automodule:: regexutils
-        :members:
-
+Utils
+===========================================
 .. automodule:: pathutils
         :members:
 
-.. automodule:: config
-        :members:
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

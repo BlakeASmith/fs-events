@@ -17,9 +17,9 @@ sys.path.insert(0, os.path.abspath('.'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'PatternMonitor'
-copyright = '2020, BlakeSmith'
-author = 'BlakeSmith'
+project = 'Watch'
+copyright = '2020, Blake Smith'
+author = 'Blake Smith'
 
 # The full version, including alpha/beta/rc tags
 release = '0.0.1'

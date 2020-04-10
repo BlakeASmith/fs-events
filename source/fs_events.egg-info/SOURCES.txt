@@ -1,0 +1,10 @@
+README.rst
+setup.py
+fs_events.egg-info/PKG-INFO
+fs_events.egg-info/SOURCES.txt
+fs_events.egg-info/dependency_links.txt
+fs_events.egg-info/top_level.txt
+fsevents/__init__.py
+fsevents/config.py
+fsevents/events.py
+fsevents/pathutils.py
